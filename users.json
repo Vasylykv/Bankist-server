@@ -61,7 +61,7 @@
     {
       "id": "3",
       "owner": "Steven Thomas Williams",
-      "email": "example@gmail.com",
+      "email": "example3@gmail.com",
       "password": "3333",
       "movements": [
         200,
@@ -78,7 +78,7 @@
     {
       "id": "4",
       "owner": "Sarah Smith",
-      "email": "example@gmail.com",
+      "email": "example4@gmail.com",
       "password": "4444",
       "movements": [
         430,
