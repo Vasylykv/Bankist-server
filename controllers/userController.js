@@ -74,6 +74,25 @@ class UserController {
       next(e);
     }
   }
+
+  async makeTransfer(req, res, next) {
+    try {
+      const { email: sender } = req.user;
+      const { reciever, amount } = req.body;
+
+      await userService.makeTransfer(sender, reciever, amount);
+
+      return res.json({
+        status: 'success',
+        data: {
+          reciever,
+          amount,
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 module.exports = new UserController();

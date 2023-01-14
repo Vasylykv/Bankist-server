@@ -5,6 +5,7 @@ const mailService = require('./mailService');
 const tokenService = require('./tokenService');
 const UserDto = require('../dtos/userDto');
 const ApiError = require('../exceptions/apiError');
+const { default: mongoose } = require('mongoose');
 
 class UserService {
   async registration(email, password) {
@@ -98,6 +99,44 @@ class UserService {
   async getAllUsers() {
     const users = await UserModel.find();
     return users;
+  }
+
+  async makeTransfer(senderEmail, recieverEmail, amount) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const sender = await UserModel.findOne({ email: senderEmail });
+      const reciever = await UserModel.findOne({ email: recieverEmail });
+
+      if (!reciever) {
+        throw new Error('There is no user with such an email');
+      }
+
+      if (sender.balance < amount) {
+        throw new Error('Sender account does not have enough funds');
+      }
+
+      await UserModel.updateOne(
+        { email: senderEmail },
+        {
+          $inc: { balance: -amount },
+          $push: { movements: { amount: -amount, date: new Date() } },
+        }
+      );
+
+      await UserModel.updateOne(
+        { email: recieverEmail },
+        {
+          $inc: { balance: amount },
+          $push: { movements: { amount, date: new Date() } },
+        }
+      );
+
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    }
   }
 }
 
